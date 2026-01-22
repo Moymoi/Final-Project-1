@@ -1,0 +1,26 @@
+main{
+  min-height: 80vh;
+}
+
+h3{
+  padding: 1rem;
+}
+
+.rating span{
+  margin: 0.1rem;
+}
+
+:root{
+  --primary-color: #0d6efd; /* default Bootstrap primary - change as needed */
+}
+
+/* Product card uses the site's primary color */
+.product-card{
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+}
+.product-card a{color:inherit;text-decoration:none}
+.product-card .card-img-top{background:transparent}
+.product-card .card-body{background:transparent}
+.product-card .card-title strong{color:inherit}
