@@ -5,17 +5,15 @@ import { Modal, Button, Alert } from 'react-bootstrap';
 const CheckoutModal = ({ show, onHide, product }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
-  const [error, setError] = useState(null);
 
   const token = localStorage.getItem('authToken');
   const user = localStorage.getItem('user');
 
   const handleCheckout = () => {
     if (!token || !user) {
-      setError('You must be logged in to purchase items');
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
+      // Redirect to login page
+      onHide();
+      navigate('/login');
       return;
     }
 
@@ -24,17 +22,17 @@ const CheckoutModal = ({ show, onHide, product }) => {
     onHide();
   };
 
+  const handleLoginClick = () => {
+    onHide();
+    navigate('/login');
+  };
+
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
         <Modal.Title>{product?.name}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {error && (
-          <Alert variant="warning" onClose={() => setError(null)} dismissible>
-            {error}
-          </Alert>
-        )}
         <p className="text-muted">{product?.description}</p>
         <div className="my-3">
           <h5>Price: ${product?.price}</h5>
@@ -59,13 +57,15 @@ const CheckoutModal = ({ show, onHide, product }) => {
         <Button variant="secondary" onClick={onHide}>
           Cancel
         </Button>
-        <Button
-          variant="primary"
-          onClick={handleCheckout}
-          className={!token ? 'disabled' : ''}
-        >
-          {token ? 'Buy Now' : 'Login to Purchase'}
-        </Button>
+        {token ? (
+          <Button variant="primary" onClick={handleCheckout}>
+            Buy Now
+          </Button>
+        ) : (
+          <Button variant="primary" onClick={handleLoginClick}>
+            Login to Purchase
+          </Button>
+        )}
       </Modal.Footer>
     </Modal>
   );

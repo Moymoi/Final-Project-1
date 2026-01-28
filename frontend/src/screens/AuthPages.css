@@ -51,12 +51,19 @@
   font-size: 14px;
   transition: all 0.3s ease;
   height: auto;
+  color: #333;
+  background-color: #fff;
+}
+
+.auth-card .form-control::placeholder {
+  color: #999;
 }
 
 .auth-card .form-control:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   background-color: #f8f9ff;
+  color: #333;
 }
 
 .auth-card .form-control.is-invalid {

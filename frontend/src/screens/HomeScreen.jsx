@@ -1,13 +1,12 @@
 import React, {useState, useEffect} from 'react'
 import defaultProducts from '../products'
-import {Row, Col, Alert} from 'react-bootstrap'
+import {Row, Col} from 'react-bootstrap'
 import Product from '../components/Product'
 import axios from 'axios'
 
 function HomeScreen() {
     const [products, setProducts] = useState(defaultProducts)
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
 
     useEffect(() => {
         async function fetchProducts() {
@@ -18,7 +17,6 @@ function HomeScreen() {
                 if (data && data.length > 0) {
                     setProducts(data)
                 }
-                setError(null)
             } catch (err) {
                 console.error('Error fetching products:', err)
                 // Don't set error, just use local products as fallback
