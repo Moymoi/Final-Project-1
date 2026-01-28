@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Form, Button, Card, Alert, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
+import OTPVerification from './OTPVerification';
 import './AuthPages.css';
 
 const LoginScreen = () => {
@@ -12,6 +13,8 @@ const LoginScreen = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
+  const [requireOtp, setRequireOtp] = useState(false);
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -52,20 +55,26 @@ const LoginScreen = () => {
         password: formData.password,
       });
 
-      // Store token in localStorage
-      localStorage.setItem('authToken', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      // Check if OTP is required
+      if (response.data.require_otp) {
+        setUserId(response.data.user_id);
+        setRequireOtp(true);
+      } else {
+        // Store token in localStorage
+        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      setAlert({
-        type: 'success',
-        message: response.data.message || 'Login successful!',
-      });
+        setAlert({
+          type: 'success',
+          message: response.data.message || 'Login successful!',
+        });
 
-      // Redirect to home after 1.5 seconds
-      setTimeout(() => {
-        navigate('/');
-        window.location.reload();
-      }, 1500);
+        // Redirect to home after 1.5 seconds
+        setTimeout(() => {
+          navigate('/');
+          window.location.reload();
+        }, 1500);
+      }
     } catch (error) {
       const errorMessage =
         error.response?.data?.error ||
@@ -78,6 +87,11 @@ const LoginScreen = () => {
       setLoading(false);
     }
   };
+
+  // Show OTP verification screen if required
+  if (requireOtp) {
+    return <OTPVerification userId={userId} />;
+  }
 
   return (
     <Container fluid className="auth-container d-flex justify-content-center align-items-center">

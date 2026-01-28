@@ -10,6 +10,9 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, UserProfileSerializer
 from .models import UserProfile
+import qrcode
+import io
+import base64
 
 # Create your views here.
 @api_view(['GET'])
@@ -27,6 +30,8 @@ def register_user(request):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            # Create user profile with 2FA disabled by default
+            profile, created = UserProfile.objects.get_or_create(user=user)
             token, created = Token.objects.get_or_create(user=user)
             return Response({
                 'message': 'User registered successfully',
@@ -39,7 +44,7 @@ def register_user(request):
 @permission_classes([AllowAny])
 def login_user(request):
     """
-    User login endpoint
+    User login endpoint with optional 2FA check
     """
     if request.method == 'POST':
         serializer = UserLoginSerializer(data=request.data)
@@ -49,17 +54,129 @@ def login_user(request):
             
             user = authenticate(username=username, password=password)
             if user:
+                profile = user.profile
+                # If 2FA is enabled, require OTP verification
+                if profile.two_fa_enabled:
+                    return Response({
+                        'message': 'OTP verification required',
+                        'require_otp': True,
+                        'user_id': user.id
+                    }, status=status.HTTP_200_OK)
+                
                 token, created = Token.objects.get_or_create(user=user)
                 return Response({
                     'message': 'Login successful',
                     'user': UserSerializer(user).data,
-                    'token': token.key
+                    'token': token.key,
+                    'require_otp': False
                 }, status=status.HTTP_200_OK)
             else:
                 return Response({
                     'error': 'Invalid username or password'
                 }, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_otp(request):
+    """
+    Verify OTP token for 2FA login
+    """
+    user_id = request.data.get('user_id')
+    otp_token = request.data.get('otp_token')
+    
+    if not user_id or not otp_token:
+        return Response({
+            'error': 'user_id and otp_token are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(id=user_id)
+        profile = user.profile
+        
+        if profile.verify_2fa_token(otp_token):
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'message': 'OTP verified successfully',
+                'user': UserSerializer(user).data,
+                'token': token.key
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'error': 'Invalid OTP token'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+    except User.DoesNotExist:
+        return Response({
+            'error': 'User not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def enable_2fa(request):
+    """
+    Generate QR code for setting up 2FA
+    """
+    profile = request.user.profile
+    secret = profile.generate_2fa_secret()
+    profile.save()
+    
+    uri = profile.get_2fa_uri()
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(uri)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    img_str = base64.b64encode(buffer.getvalue()).decode()
+    
+    return Response({
+        'message': '2FA setup initiated',
+        'secret': secret,
+        'qr_code': f'data:image/png;base64,{img_str}',
+        'uri': uri
+    }, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def confirm_2fa(request):
+    """
+    Confirm 2FA setup by verifying OTP token
+    """
+    otp_token = request.data.get('otp_token')
+    
+    if not otp_token:
+        return Response({
+            'error': 'otp_token is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    profile = request.user.profile
+    
+    if profile.verify_2fa_token(otp_token):
+        profile.two_fa_enabled = True
+        profile.save()
+        return Response({
+            'message': '2FA enabled successfully'
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({
+            'error': 'Invalid OTP token'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def disable_2fa(request):
+    """
+    Disable 2FA for user
+    """
+    profile = request.user.profile
+    profile.two_fa_enabled = False
+    profile.two_fa_secret = None
+    profile.save()
+    return Response({
+        'message': '2FA disabled successfully'
+    }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

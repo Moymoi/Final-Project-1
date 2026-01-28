@@ -1,0 +1,12 @@
+.qr-code {
+  max-width: 300px;
+  width: 100%;
+  border: 3px solid #667eea;
+  border-radius: 8px;
+  padding: 10px;
+  background: white;
+}
+
+.font-monospace {
+  font-family: 'Courier New', Courier, monospace;
+}

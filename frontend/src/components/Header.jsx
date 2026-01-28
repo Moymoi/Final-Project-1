@@ -70,6 +70,9 @@ function Header() {
                 <NavDropdown.Item as={Link} to="/settings">
                   <i className="fas fa-cog me-2"></i>Settings
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/security">
+                  <i className="fas fa-shield-alt me-2"></i>Security & 2FA
+                </NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleLogout}>
                   <i className="fas fa-sign-out-alt me-2"></i>Logout
