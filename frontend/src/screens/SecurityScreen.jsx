@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, ListGroup, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import TwoFactorSetup from '../components/TwoFactorSetup';
+import QuickVerify2FA from '../components/QuickVerify2FA';
 import { useNavigate } from 'react-router-dom';
 
 const SecurityScreen = () => {
@@ -9,6 +10,7 @@ const SecurityScreen = () => {
   const [loading, setLoading] = useState(true);
   const [disabling, setDisabling] = useState(false);
   const [showTwoFaModal, setShowTwoFaModal] = useState(false);
+  const [showQuickVerify, setShowQuickVerify] = useState(false);
   const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
 
@@ -34,6 +36,10 @@ const SecurityScreen = () => {
       setTwoFaEnabled(response.data.two_fa_enabled);
     } catch (error) {
       console.error('Error fetching security info:', error);
+      setAlert({
+        type: 'danger',
+        message: 'Failed to load security settings'
+      });
     } finally {
       setLoading(false);
     }
@@ -44,7 +50,7 @@ const SecurityScreen = () => {
       setDisabling(true);
       try {
         const token = localStorage.getItem('authToken');
-        await axios.post(
+        const response = await axios.post(
           'http://localhost:8000/api/2fa/disable/',
           {},
           {
@@ -54,16 +60,17 @@ const SecurityScreen = () => {
           }
         );
         
+        console.log('Disable response:', response.data);
         setTwoFaEnabled(false);
         setAlert({
           type: 'success',
           message: '✓ Two-Factor Authentication has been disabled'
         });
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Disable 2FA error:', error);
         setAlert({
           type: 'danger',
-          message: 'Failed to disable Two-Factor Authentication. Please try again.'
+          message: error.response?.data?.error || 'Failed to disable Two-Factor Authentication. Please try again.'
         });
       } finally {
         setDisabling(false);
@@ -136,9 +143,9 @@ const SecurityScreen = () => {
                       <>
                         <span className='badge bg-secondary align-self-center'>Disabled</span>
                         <Button 
-                          variant='success' 
+                          variant='warning' 
                           size='sm'
-                          onClick={() => setShowTwoFaModal(true)}
+                          onClick={() => setShowQuickVerify(true)}
                         >
                           <i className='fas fa-check me-1'></i>Enable
                         </Button>
@@ -175,6 +182,18 @@ const SecurityScreen = () => {
       <TwoFactorSetup 
         show={showTwoFaModal}
         onHide={() => setShowTwoFaModal(false)}
+        onSuccess={() => {
+          setTwoFaEnabled(true);
+          setAlert({
+            type: 'success',
+            message: '✓ You\'re all set! Two-Factor Authentication is now enabled on your account. You\'ll need to enter a code from your authenticator app when logging in.'
+          });
+        }}
+      />
+
+      <QuickVerify2FA 
+        show={showQuickVerify}
+        onHide={() => setShowQuickVerify(false)}
         onSuccess={() => {
           setTwoFaEnabled(true);
           setAlert({
