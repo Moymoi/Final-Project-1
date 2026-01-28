@@ -13,6 +13,7 @@ from .models import UserProfile
 
 # Create your views here.
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def getProducts(request):
     return Response(products)
 
