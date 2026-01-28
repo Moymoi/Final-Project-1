@@ -3,6 +3,7 @@ import defaultProducts from '../products'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Col, ListGroup, Row, Image, Card, Button, Form } from 'react-bootstrap';
 import Rating from '../components/Rating';
+import CheckoutModal from '../components/CheckoutModal';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
@@ -11,6 +12,7 @@ function ProductScreen() {
     const navigate = useNavigate()
     const [product, setProduct] = useState({})
     const [quantity, setQuantity] = useState(1)
+    const [showCheckout, setShowCheckout] = useState(false)
 
     useEffect(() => {
         async function fetchProduct() {
@@ -30,15 +32,7 @@ function ProductScreen() {
     }, [id])
 
     const handlePurchase = () => {
-        const token = localStorage.getItem('authToken')
-        if (!token) {
-            // Redirect to login if not authenticated
-            navigate('/login')
-            return
-        }
-
-        // Proceed with purchase
-        alert(`Added ${quantity} ${product.name} to cart! (Checkout coming soon)`)
+        setShowCheckout(true)
     }
 
   return (
@@ -121,6 +115,12 @@ function ProductScreen() {
                 </Card>
             </Col>
         </Row>
+
+        <CheckoutModal 
+            show={showCheckout} 
+            onHide={() => setShowCheckout(false)} 
+            product={product}
+        />
     </div>
     
   )
