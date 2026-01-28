@@ -119,10 +119,15 @@ def verify_otp(request):
 def enable_2fa(request):
     """
     Generate QR code for setting up 2FA
+    If a secret already exists (from previous setup), use it.
+    Otherwise, generate a new one.
     """
     profile = request.user.profile
-    secret = profile.generate_2fa_secret()
-    profile.save()
+    
+    # If secret already exists (e.g., re-enabling after disable), use it
+    if not profile.two_fa_secret:
+        secret = profile.generate_2fa_secret()
+        profile.save()
     
     uri = profile.get_2fa_uri()
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -147,6 +152,7 @@ def enable_2fa(request):
 def confirm_2fa(request):
     """
     Confirm 2FA setup by verifying OTP token
+    Works both for initial setup and for re-enabling after disable
     """
     otp_token = request.data.get('otp_token')
     
@@ -161,7 +167,7 @@ def confirm_2fa(request):
     
     if not profile.two_fa_secret:
         return Response({
-            'error': 'No 2FA secret found. Please start the setup process again.'
+            'error': 'No 2FA secret found. Please generate a QR code first by visiting the enable 2FA page.'
         }, status=status.HTTP_400_BAD_REQUEST)
     
     # Create TOTP instance to verify token (don't require 2FA to be enabled yet)
@@ -182,10 +188,11 @@ def confirm_2fa(request):
 def disable_2fa(request):
     """
     Disable 2FA for user
+    Note: We keep the secret stored so user can re-enable without scanning QR code again
     """
     profile = request.user.profile
     profile.two_fa_enabled = False
-    profile.two_fa_secret = None
+    # Don't clear the secret - keep it so user can re-enable by just verifying OTP
     profile.save()
     return Response({
         'message': '2FA disabled successfully'

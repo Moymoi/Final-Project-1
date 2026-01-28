@@ -45,7 +45,31 @@ const SecurityScreen = () => {
     }
   };
 
-  const handleDisable2FA = async () => {
+  const handleEnable2FA = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get('http://localhost:8000/api/2fa/enable/', {
+        headers: {
+          Authorization: `Token ${token}`
+        }
+      });
+      
+      // Check if we got a QR code (new setup) or just the URI (re-enabling)
+      if (response.data.qr_code) {
+        // Full setup with QR code
+        setShowTwoFaModal(true);
+      } else {
+        // Re-enabling with existing secret - just verify the OTP
+        setShowQuickVerify(true);
+      }
+    } catch (error) {
+      console.error('Error enabling 2FA:', error);
+      setAlert({
+        type: 'danger',
+        message: 'Failed to start 2FA setup. Please try again.'
+      });
+    }
+  };
     if (window.confirm('Are you sure you want to disable Two-Factor Authentication? This will make your account less secure.')) {
       setDisabling(true);
       try {
@@ -145,7 +169,7 @@ const SecurityScreen = () => {
                         <Button 
                           variant='warning' 
                           size='sm'
-                          onClick={() => setShowQuickVerify(true)}
+                          onClick={handleEnable2FA}
                         >
                           <i className='fas fa-check me-1'></i>Enable
                         </Button>
