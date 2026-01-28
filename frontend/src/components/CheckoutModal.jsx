@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button, Alert } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 
 const CheckoutModal = ({ show, onHide, product }) => {
   const navigate = useNavigate();
