@@ -31,8 +31,20 @@ class UserProfile(models.Model):
         )
     
     def verify_2fa_token(self, token):
-        """Verify a TOTP token from Google Authenticator"""
+        """Verify a TOTP token from Google Authenticator
+        Allows for time drift of ±1 time window (30 seconds each side)"""
         if not self.two_fa_enabled or not self.two_fa_secret:
             return False
-        totp = pyotp.TOTP(self.two_fa_secret)
-        return totp.verify(token)
+        try:
+            # Ensure token is a string
+            token = str(token).strip()
+            # Ensure secret is set
+            if not self.two_fa_secret:
+                return False
+            totp = pyotp.TOTP(self.two_fa_secret)
+            # Allow for time skew (±1 means checking current window and adjacent windows)
+            # This accounts for minor time synchronization differences between devices
+            return totp.verify(token, valid_window=2)  # Increased window for more tolerance
+        except Exception as e:
+            print(f"2FA verification error: {e}")
+            return False

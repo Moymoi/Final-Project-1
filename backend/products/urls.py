@@ -14,4 +14,5 @@ urlpatterns = [
     path('2fa/enable/', views.enable_2fa, name='enable-2fa'),
     path('2fa/confirm/', views.confirm_2fa, name='confirm-2fa'),
     path('2fa/disable/', views.disable_2fa, name='disable-2fa'),
+    path('2fa/test-code/', views.test_2fa_code, name='test-2fa-code'),
 ]

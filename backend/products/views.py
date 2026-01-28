@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, UserProfileSerializer
 from .models import UserProfile
+import pyotp
 import qrcode
 import io
 import base64
@@ -94,6 +95,9 @@ def verify_otp(request):
         user = User.objects.get(id=user_id)
         profile = user.profile
         
+        # Convert to string and strip whitespace
+        otp_token = str(otp_token).strip()
+        
         if profile.verify_2fa_token(otp_token):
             token, created = Token.objects.get_or_create(user=user)
             return Response({
@@ -103,7 +107,7 @@ def verify_otp(request):
             }, status=status.HTTP_200_OK)
         else:
             return Response({
-                'error': 'Invalid OTP token'
+                'error': 'Invalid OTP token. Please check and try again.'
             }, status=status.HTTP_401_UNAUTHORIZED)
     except User.DoesNotExist:
         return Response({
@@ -152,8 +156,17 @@ def confirm_2fa(request):
         }, status=status.HTTP_400_BAD_REQUEST)
     
     profile = request.user.profile
+    # Convert to string and strip whitespace
+    otp_token = str(otp_token).strip()
     
-    if profile.verify_2fa_token(otp_token):
+    if not profile.two_fa_secret:
+        return Response({
+            'error': 'No 2FA secret found. Please start the setup process again.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Create TOTP instance to verify token (don't require 2FA to be enabled yet)
+    totp = pyotp.TOTP(profile.two_fa_secret)
+    if totp.verify(otp_token, valid_window=2):
         profile.two_fa_enabled = True
         profile.save()
         return Response({
@@ -161,7 +174,7 @@ def confirm_2fa(request):
         }, status=status.HTTP_200_OK)
     else:
         return Response({
-            'error': 'Invalid OTP token'
+            'error': 'Invalid OTP token. Please check and try again.'
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
@@ -237,6 +250,27 @@ def update_user_profile(request):
         return Response({
             'error': 'Profile not found'
         }, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def test_2fa_code(request):
+    """
+    DEBUG: Get current OTP code for testing (remove in production)
+    """
+    profile = request.user.profile
+    if not profile.two_fa_secret:
+        return Response({
+            'error': 'No 2FA secret configured'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    totp = pyotp.TOTP(profile.two_fa_secret)
+    current_code = totp.now()
+    
+    return Response({
+        'current_otp': current_code,
+        'secret': profile.two_fa_secret,
+        'message': 'DEBUG: This is your current OTP code. DO NOT use in production!'
+    }, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def getProduct(request, pk):

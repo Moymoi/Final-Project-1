@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const SecurityScreen = () => {
   const [twoFaEnabled, setTwoFaEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [disabling, setDisabling] = useState(false);
   const [showTwoFaModal, setShowTwoFaModal] = useState(false);
   const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ const SecurityScreen = () => {
 
   const handleDisable2FA = async () => {
     if (window.confirm('Are you sure you want to disable Two-Factor Authentication? This will make your account less secure.')) {
+      setDisabling(true);
       try {
         const token = localStorage.getItem('authToken');
         await axios.post(
@@ -55,13 +57,16 @@ const SecurityScreen = () => {
         setTwoFaEnabled(false);
         setAlert({
           type: 'success',
-          message: 'Two-Factor Authentication has been disabled'
+          message: '✓ Two-Factor Authentication has been disabled'
         });
       } catch (error) {
+        console.error('Error:', error);
         setAlert({
           type: 'danger',
-          message: 'Failed to disable Two-Factor Authentication'
+          message: 'Failed to disable Two-Factor Authentication. Please try again.'
         });
+      } finally {
+        setDisabling(false);
       }
     }
   };
@@ -105,27 +110,37 @@ const SecurityScreen = () => {
                       Add an extra layer of security to your account using Google Authenticator
                     </p>
                   </div>
-                  <div className='ms-3'>
+                  <div className='ms-3 d-flex gap-2'>
                     {twoFaEnabled ? (
                       <>
-                        <span className='badge bg-success me-2'>Enabled</span>
+                        <span className='badge bg-success align-self-center'>Enabled</span>
                         <Button 
                           variant='danger' 
                           size='sm'
                           onClick={handleDisable2FA}
+                          disabled={disabling}
                         >
-                          Disable
+                          {disabling ? (
+                            <>
+                              <Spinner animation='border' size='sm' className='me-1' />
+                              Disabling...
+                            </>
+                          ) : (
+                            <>
+                              <i className='fas fa-times me-1'></i>Disable
+                            </>
+                          )}
                         </Button>
                       </>
                     ) : (
                       <>
-                        <span className='badge bg-secondary me-2'>Disabled</span>
+                        <span className='badge bg-secondary align-self-center'>Disabled</span>
                         <Button 
-                          variant='primary' 
+                          variant='success' 
                           size='sm'
                           onClick={() => setShowTwoFaModal(true)}
                         >
-                          Enable
+                          <i className='fas fa-check me-1'></i>Enable
                         </Button>
                       </>
                     )}
@@ -164,7 +179,7 @@ const SecurityScreen = () => {
           setTwoFaEnabled(true);
           setAlert({
             type: 'success',
-            message: 'Two-Factor Authentication enabled successfully!'
+            message: '✓ You\'re all set! Two-Factor Authentication is now enabled on your account. You\'ll need to enter a code from your authenticator app when logging in.'
           });
         }}
       />
