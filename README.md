@@ -25,6 +25,7 @@ DATABASE_URL=sqlite:///db.sqlite3
 ```
 Add any additional keys for email, storage, or external APIs as needed.
 
+
 ## Database & Migrations
 - Apply migrations: `python manage.py migrate`
 - If you add models, create migrations before pushing: `python manage.py makemigrations` then `python manage.py migrate`
@@ -32,6 +33,12 @@ Add any additional keys for email, storage, or external APIs as needed.
 ## Running the Project
 - Start the dev server: `python manage.py runserver`
 - Access locally at: http://127.0.0.1:8000/
+
+- Start the frontend server: `npm start`
+
+## If error " 'react-scripts' is not recognized " shows up
+- If react-scripts is present in package.json, then just type this command: `npm install`
+- If react-scripts is not present in package.json, then you probably haven't installed it. To do that, run: `npm install react-scripts --save`
 
 ## Admin Access
 - Create a superuser for admin UI: `python manage.py createsuperuser`

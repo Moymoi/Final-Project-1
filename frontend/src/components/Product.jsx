@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import Rating from './Rating'
 import { Card, Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import CheckoutModal from './CheckoutModal'
 
 function Product({product}) {
   const [showCheckout, setShowCheckout] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <>
@@ -34,7 +35,7 @@ function Product({product}) {
                   <Button 
                     variant={product.countInStock > 0 ? 'success' : 'secondary'} 
                     className='w-100 mt-2'
-                    onClick={() => setShowCheckout(true)}
+                    onClick={() => navigate(`/product/${product._id}`)}
                     disabled={product.countInStock === 0}
                   >
                     <i className='fas fa-shopping-cart me-2'></i>{product.countInStock > 0 ? 'Buy Now' : 'Out of Stock'}

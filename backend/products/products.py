@@ -11,6 +11,8 @@ products = [
       'countInStock': 0,
       'rating': 5.0,
       'numReviews': 12,
+      'unit': 'Diamonds',
+      'unitDesign': {'emoji': '💎', 'color': '#28a745', 'borderColor': '#1e7e34'},
     },
     {
       '_id': '2',
@@ -24,6 +26,8 @@ products = [
       'countInStock': 7,
       'rating': 4.0,
       'numReviews': 8,
+      'unit': 'Shells',
+      'unitDesign': { 'image': '/images/Item_Shells.png', 'color': '#fd7e14', 'borderColor': '#d35400'},
     },
     {
       '_id': '3',
@@ -37,6 +41,8 @@ products = [
       'countInStock': 5,
       'rating': 3.5,
       'numReviews': 12,
+      'unit': 'Wild Cores',
+      'unitDesign': { 'image': '/images/Item_Wildcore.png', 'color': '#0dcaf0', 'borderColor': '#0aa2c0'},
     },
     {
       '_id': '4',
@@ -50,6 +56,8 @@ products = [
       'countInStock': 11,
       'rating': 5,
       'numReviews': 12,
+      'unit': 'Robux',
+      'unitDesign': { 'image': '/images/Item_Robux.png', 'color': '#6f42c1', 'borderColor': '#4c0099'},
     },
     {
       '_id': '5',
@@ -63,6 +71,8 @@ products = [
       'countInStock': 7,
       'rating': 3.5,
       'numReviews': 10,
+      'unit': 'Primogems',
+      'unitDesign': { 'image': '/images/Item_Primogem.webp', 'color': '#dc3545', 'borderColor': '#a71d2a'},
     },
     {
       '_id': '6',
@@ -76,6 +86,8 @@ products = [
       'countInStock': 0,
       'rating': 4,
       'numReviews': 12,
+      'unit': 'Oneiric Shards',
+      'unitDesign': { 'image': '/images/Item_Oneiric_Shard.webp', 'color': '#6930c3', 'borderColor': '#4d1e99'},
     },
     {
       '_id': '7',
@@ -89,6 +101,8 @@ products = [
       'countInStock': 3,
       'rating': 5,
       'numReviews':26,
+      'unit': 'Tokens',
+      'unitDesign': {'emoji': '🪙', 'color': '#ffc107', 'borderColor': '#cc9900'},
     },
     {
       '_id': '8',
@@ -102,6 +116,8 @@ products = [
       'countInStock': 3,
       'rating': 4.5,
       'numReviews': 7,
+      'unit': 'Crystals',
+      'unitDesign': {'emoji': '💎', 'color': '#e91e63', 'borderColor': '#ad1457'},
     },
   ]
   

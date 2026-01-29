@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import './CheckoutModal.css';
 
-const CheckoutModal = ({ show, onHide, product }) => {
+const CheckoutModal = ({ show, onHide, product, chosenProduct, userId }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
 
@@ -19,7 +19,7 @@ const CheckoutModal = ({ show, onHide, product }) => {
     }
 
     // Proceed with checkout
-    alert(`Added ${quantity} ${product.name} to cart! (Checkout coming soon)`);
+    alert(`Added ${quantity} x ${chosenProduct.amount} ${chosenProduct.unit} to cart! (Checkout coming soon)`);
     onHide();
   };
 
@@ -28,20 +28,24 @@ const CheckoutModal = ({ show, onHide, product }) => {
     navigate('/login');
   };
 
-  const total = (product?.price * quantity).toFixed(2);
+  const total = (chosenProduct?.price * quantity).toFixed(2);
 
   return (
     <Modal show={show} onHide={onHide} centered className="checkout-modal">
       <Modal.Header closeButton className="checkout-header">
-        <Modal.Title className="checkout-title">{product?.name}</Modal.Title>
+        <Modal.Title className="checkout-title">{product?.name} - Checkout</Modal.Title>
       </Modal.Header>
       <Modal.Body className="checkout-body">
-        <p className="product-description">{product?.description}</p>
+        <p className="product-description">User ID: <strong>{userId}</strong></p>
         
         <div className="price-section">
           <div className="price-row">
-            <span className="price-label">Price:</span>
-            <span className="price-value">${product?.price}</span>
+            <span className="price-label">Package:</span>
+            <span className="price-value">{chosenProduct?.amount} {chosenProduct?.unit}</span>
+          </div>
+          <div className="price-row">
+            <span className="price-label">Price per unit:</span>
+            <span className="price-value">${chosenProduct?.price}</span>
           </div>
         </div>
 
@@ -50,7 +54,7 @@ const CheckoutModal = ({ show, onHide, product }) => {
           <input
             type="number"
             min="1"
-            max={product?.stock || 10}
+            max="10"
             value={quantity}
             onChange={(e) => setQuantity(parseInt(e.target.value))}
             className="quantity-input"

@@ -30,7 +30,7 @@ function HomeScreen() {
 
   return (
     <div>
-        <h3 className='py-3 text-center'><i className='fas fa-fire'></i>Hottest in the Market<i className='fas fa-fire'></i></h3>
+        <h3 className='py-3 text-center'><i className='fas fa-fire'></i>Hottest<i className='fas fa-fire'></i></h3>
         
         {loading ? (
             <div className="text-center py-5">
