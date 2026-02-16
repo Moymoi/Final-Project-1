@@ -14,6 +14,7 @@ import SupportScreen from './screens/SupportScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import TransactionHistory from './screens/TransactionHistory';
+import AdminDashboard from './screens/AdminDashboard';
 
 function App() {
   return (
@@ -29,6 +30,8 @@ function App() {
             <Route path='/inventory' element={<InventoryScreen />} />
             <Route path='/events' element={<EventsScreen />} />
             <Route path='/transactions' element={<TransactionHistory />} />
+            <Route path='/profile/transactions' element={<TransactionHistory />} />
+            <Route path='/admin' element={<AdminDashboard />} />
             <Route path='/support' element={<SupportScreen />} />
             <Route path='/profile' element={<ProfileScreen />} />
             <Route path='/settings' element={<SettingsScreen />} />

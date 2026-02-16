@@ -94,6 +94,11 @@ function Header() {
 
             {user ? (
               <NavDropdown title={<><i className='fas fa-user-circle'></i> {user.username}</> } id="user-dropdown">
+                {user.is_superuser && (
+                  <NavDropdown.Item as={Link} to="/admin">
+                    <i className="fas fa-tools me-2"></i>Admin Dashboard
+                  </NavDropdown.Item>
+                )}
                 <NavDropdown.Item as={Link} to="/profile">
                   <i className="fas fa-user me-2"></i>Profile
                 </NavDropdown.Item>

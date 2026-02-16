@@ -17,7 +17,7 @@ class UserProfile(models.Model):
     
     def generate_2fa_secret(self):
         """Generate a new TOTP secret for Google Authenticator"""
-        self.two_fa_secret = pyotp.random_base32()
+        self.two_fa_secret = pyotp.random_base_32()
         return self.two_fa_secret
     
     def get_2fa_uri(self):
@@ -48,3 +48,33 @@ class UserProfile(models.Model):
         except Exception as e:
             print(f"2FA verification error: {e}")
             return False
+
+
+class Purchase(models.Model):
+    """Purchase/Transaction model"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchases')
+    product_name = models.CharField(max_length=255)
+    product_id = models.CharField(max_length=50, blank=True, null=True)
+    quantity = models.PositiveIntegerField(default=1)
+    unit = models.CharField(max_length=50, blank=True, default='unit')
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed')
+    transaction_id = models.CharField(max_length=100, unique=True)
+    user_id_input = models.CharField(max_length=100, blank=True, null=True, help_text="User-provided game ID")
+    payment_method = models.CharField(max_length=50, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.product_name} (${self.price})"

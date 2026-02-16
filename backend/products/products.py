@@ -2,7 +2,7 @@ products = [
     {
       '_id': '1',
       'name': 'Mobile Legends Bang Bang',
-      'image': '/images/MLBB.jpg',
+      'image': 'http://localhost:8000/static/images/MLBB.jpg',
       'description':
         'Buy Mobile Legends Diamonds, Twilight Pass and Weekly Diamond Pass in seconds! TheLootStop offers easy, safe and convenient ML top ups.',
       'brand': 'Methamphetamine',
@@ -17,7 +17,7 @@ products = [
     {
       '_id': '2',
       'name': 'Call of Duty Mobile',
-      'image': '/images/CODM.jpg',
+      'image': 'http://localhost:8000/static/images/CODM.jpg',
       'description':
         'Buy Garena Shells for Call of Duty Mobile CP in seconds! TheLootStop offers easy, safe and convenient Call of Duty Mobile top ups.',
       'brand': 'Apple',
@@ -27,12 +27,12 @@ products = [
       'rating': 4.0,
       'numReviews': 8,
       'unit': 'Shells',
-      'unitDesign': { 'image': '/images/Item_Shells.png', 'color': '#fd7e14', 'borderColor': '#d35400'},
+      'unitDesign': { 'image': 'http://localhost:8000/static/images/Item_Shells.png', 'color': '#fd7e14', 'borderColor': '#d35400'},
     },
     {
       '_id': '3',
       'name': 'Leauge of Legends: Wild Rift',
-      'image': '/images/LOL.png',
+      'image': 'http://localhost:8000/static/images/LOL.png',
       'description':
         'Buy Wild Cores for League of Legends: Wild Rift (Mobile). TheLootStop offers easy, safe and convenient Wild Rift Top ups.',
       'brand': 'Cannon',
@@ -42,12 +42,12 @@ products = [
       'rating': 3.5,
       'numReviews': 12,
       'unit': 'Wild Cores',
-      'unitDesign': { 'image': '/images/Item_Wildcore.png', 'color': '#0dcaf0', 'borderColor': '#0aa2c0'},
+      'unitDesign': { 'image': 'http://localhost:8000/static/images/Item_Wildcore.png', 'color': '#0dcaf0', 'borderColor': '#0aa2c0'},
     },
     {
       '_id': '4',
       'name': 'Roblox',
-      'image': '/images/Roblox.png',
+      'image': 'http://localhost:8000/static/images/Roblox.png',
       'description':
         'Buy Roblox Digital Gift Card and enjoy a hassle-free top-up experience only at TheLootStop. TheLootStop offers easy, safe and convenient Roblox top ups.',
       'brand': 'Sony',
@@ -57,12 +57,12 @@ products = [
       'rating': 5,
       'numReviews': 12,
       'unit': 'Robux',
-      'unitDesign': { 'image': '/images/Item_Robux.png', 'color': '#6f42c1', 'borderColor': '#4c0099'},
+      'unitDesign': { 'image': 'http://localhost:8000/static/images/Item_Robux.png', 'color': '#6f42c1', 'borderColor': '#4c0099'},
     },
     {
       '_id': '5',
       'name': 'Genshin Impact',
-      'image': '/images/Genshin.jpg',
+      'image': 'http://localhost:8000/static/images/Genshin.jpg',
       'description':
         'Buy Genshin Impact Primogems and enjoy a hassle-free top-up experience at TheLootStop. TheLootStop offers easy, safe and convenient Genshin Impact top ups.',
       'brand': 'Logitech',
@@ -72,12 +72,12 @@ products = [
       'rating': 3.5,
       'numReviews': 10,
       'unit': 'Primogems',
-      'unitDesign': { 'image': '/images/Item_Primogem.webp', 'color': '#dc3545', 'borderColor': '#a71d2a'},
+      'unitDesign': { 'image': 'http://localhost:8000/static/images/Item_Primogem.webp', 'color': '#dc3545', 'borderColor': '#a71d2a'},
     },
     {
       '_id': '6',
       'name': 'Honkai: Star Rail',
-      'image': '/images/Honkai.jpg',
+      'image': 'http://localhost:8000/static/images/Honkai.jpg',
       'description':
         'Buy Honkai: Star Rail Oneiric Shards and enjoy a hassle-free top-up experience at TheLootStop. TheLootStop offers easy, safe and convenient Honkai: Star Rail top ups.',
       'brand': 'Amazon',
@@ -87,12 +87,12 @@ products = [
       'rating': 4,
       'numReviews': 12,
       'unit': 'Oneiric Shards',
-      'unitDesign': { 'image': '/images/Item_Oneiric_Shard.webp', 'color': '#6930c3', 'borderColor': '#4d1e99'},
+      'unitDesign': { 'image': 'http://localhost:8000/static/images/Item_Oneiric_Shard.webp', 'color': '#6930c3', 'borderColor': '#4d1e99'},
     },
     {
       '_id': '7',
       'name': 'Honor of Kings',
-      'image': '/images/HOK.png',
+      'image': 'http://localhost:8000/static/images/HOK.png',
       'description':
         'Buy Honor of Kings Tokens and enjoy a hassle-free top-up experience at TheLootStop. TheLootStop offers easy, safe and convenient Honor of Kings top ups.',
       'brand': 'Amazon',
@@ -107,7 +107,7 @@ products = [
     {
       '_id': '8',
       'name': 'Love and Deepspace',
-      'image': '/images/LID.jpg',
+      'image': 'http://localhost:8000/static/images/LID.jpg',
       'description':
         'Buy Love and Deepspace Crystals and enjoy a hassle-free top-up experience at TheLootStop. TheLootStop offers easy, safe and convenient Love and Deepspace top ups.',
       'brand': 'Amazon',

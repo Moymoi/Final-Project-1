@@ -18,9 +18,56 @@ const CheckoutModal = ({ show, onHide, product, chosenProduct, userId }) => {
       return;
     }
 
-    // Proceed with checkout
-    alert(`Added ${quantity} x ${chosenProduct.amount} ${chosenProduct.unit} to cart! (Checkout coming soon)`);
-    onHide();
+    // Proceed with checkout: send purchase to backend
+    const payload = {
+      product_name: product?.name || chosenProduct?.name || 'Item',
+      product_id: chosenProduct?._id || chosenProduct?.id || null,
+      quantity: quantity,
+      unit: chosenProduct?.unit || 'unit',
+      price: chosenProduct?.price || 0,
+      payment_method: 'card',
+      notes: `Purchased from frontend by user ${JSON.parse(user).username || ''}`
+    }
+
+    fetch('http://127.0.0.1:8000/api/purchases/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(async res => {
+        const data = await res.json()
+        if (!res.ok) throw new Error((data && data.error) || 'Failed to create purchase')
+
+        // Add to local storage inventory for immediate UI compatibility
+        try {
+          const mapped = {
+            id: data.transaction_id || data.id,
+            name: data.product_name,
+            quantity: data.quantity,
+            price: data.price,
+            status: data.status,
+            date: data.created_at || new Date().toISOString()
+          }
+          const existing = JSON.parse(localStorage.getItem('inventory') || '[]')
+          existing.unshift(mapped)
+          localStorage.setItem('inventory', JSON.stringify(existing))
+          // Trigger storage event for other tabs/components
+          window.dispatchEvent(new Event('storage'))
+        } catch (e) {
+          console.error('Failed updating local inventory', e)
+        }
+
+        alert('Purchase successful! Transaction ID: ' + (data.transaction_id || data.id))
+        onHide()
+        navigate('/profile/transactions')
+      })
+      .catch(err => {
+        console.error(err)
+        alert('Purchase failed: ' + err.message)
+      })
   };
 
   const handleLoginClick = () => {

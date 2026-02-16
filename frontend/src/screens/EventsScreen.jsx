@@ -125,37 +125,60 @@ function EventsScreen() {
   }
 
   const handleConfirmBuy = () => {
-    if (!selected) return
-
-    // prepare purchase object
+    if (!selected) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    // prepare purchase object for backend
     const purchase = {
-      id: `${selected.id}-${Date.now()}`,
-      name: selected.item,
-      game: selected.initials || selected.game,
+      product_name: selected.item,
+      game: selected.game || 'General',
       type: 'event',
       price: selected.price || null,
       coins: selected.costCoins || null,
       status: 'Completed',
-      date: new Date().toISOString(),
-    }
-
-    // save to inventory
-    const inv = JSON.parse(localStorage.getItem('inventory') || '[]')
-    inv.unshift(purchase)
-    localStorage.setItem('inventory', JSON.stringify(inv))
-
-    // deduct coins if purchase uses coins
-    if (selected.costCoins) {
-      const bal = Number(localStorage.getItem('coinBalance') || 0)
-      localStorage.setItem('coinBalance', String(Math.max(0, bal - selected.costCoins)))
-    }
-
-    // trigger storage event so other tabs/components update
-    window.dispatchEvent(new Event('storage'))
-
-    setShowConfirm(false)
-    setResult({ title: 'Purchase Successful', body: `${selected.item} added to your inventory.` })
-  }
+      quantity: 1
+    };
+    fetch('http://127.0.0.1:8000/api/purchases/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(purchase)
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(JSON.stringify(data));
+        // save to inventory
+        const inv = JSON.parse(localStorage.getItem('inventory') || '[]');
+        inv.unshift({
+          id: data.transaction_id || data.id,
+          name: data.product_name,
+          game: data.game,
+          type: data.type,
+          price: data.price,
+          coins: data.coins,
+          status: data.status,
+          date: data.created_at
+        });
+        localStorage.setItem('inventory', JSON.stringify(inv));
+        // deduct coins if purchase uses coins
+        if (selected.costCoins) {
+          const bal = Number(localStorage.getItem('coinBalance') || 0);
+          localStorage.setItem('coinBalance', String(Math.max(0, bal - selected.costCoins)));
+        }
+        window.dispatchEvent(new Event('storage'));
+        setShowConfirm(false);
+        setResult({ title: 'Purchase Successful', body: `${selected.item} added to your inventory.` });
+      })
+      .catch(err => {
+        setShowConfirm(false);
+        setResult({ title: 'Error', body: 'Failed to complete purchase.' });
+      });
+  };
   return (
     <Container>
       <div className="d-flex justify-content-between align-items-center py-3">

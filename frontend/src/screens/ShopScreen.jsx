@@ -33,26 +33,95 @@ function ShopScreen() {
   }, [inventory])
 
   const buyCoinPackage = (pkg) => {
-    // In real app, go through Checkout flow / payment. Here we simulate instant purchase.
-    setCoinBalance((b) => b + pkg.coins)
-    const purchase = { id: pkg.id + '-' + Date.now(), type: 'coin', name: pkg.name, coins: pkg.coins, price: pkg.price, date: new Date().toISOString() }
-    setInventory((inv) => [...inv, purchase])
-    setModalContent({ title: 'Purchase Complete', body: `Added ${pkg.coins} coins to your balance.` })
-    setShowModal(true)
-  }
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setModalContent({ title: 'Not Logged In', body: 'Please log in to purchase.' });
+      setShowModal(true);
+      return;
+    }
+    const purchase = { type: 'coin', product_name: pkg.name, coins: pkg.coins, price: pkg.price, game: pkg.game || 'General' };
+    fetch('http://127.0.0.1:8000/api/purchases/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(purchase)
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(JSON.stringify(data));
+        setCoinBalance((b) => b + pkg.coins);
+        // Add backend response to inventory
+        setInventory((inv) => [...inv, {
+          id: data.transaction_id || data.id,
+          name: data.product_name,
+          coins: data.coins,
+          price: data.price,
+          type: 'coin',
+          status: data.status,
+          date: data.created_at
+        }]);
+        setModalContent({ title: 'Purchase Complete', body: `Added ${pkg.coins} coins to your balance.` });
+        setShowModal(true);
+      })
+      .catch(err => {
+        setModalContent({ title: 'Error', body: 'Failed to complete purchase.' });
+        setShowModal(true);
+      });
+  };
 
   const buyWithCoins = (item) => {
     if (coinBalance < item.costCoins) {
-      setModalContent({ title: 'Insufficient Coins', body: `You need ${item.costCoins} coins but have ${coinBalance}. Purchase coins first.` })
-      setShowModal(true)
-      return
+      setModalContent({ title: 'Insufficient Coins', body: `You need ${item.costCoins} coins but have ${coinBalance}. Purchase coins first.` });
+      setShowModal(true);
+      return;
     }
-    setCoinBalance((b) => b - item.costCoins)
-    const purchased = { ...item, id: item.id + '-' + Date.now(), type: item.rarity ? 'skin' : 'bundle', date: new Date().toISOString() }
-    setInventory((inv) => [...inv, purchased])
-    setModalContent({ title: 'Purchase Complete', body: `Added "${item.name}" to your inventory.` })
-    setShowModal(true)
-  }
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setModalContent({ title: 'Not Logged In', body: 'Please log in to purchase.' });
+      setShowModal(true);
+      return;
+    }
+    const purchase = {
+      product_name: item.name,
+      game: item.game || (item.rarity ? 'General' : 'General'),
+      type: item.rarity ? 'skin' : 'bundle',
+      price: null,
+      coins: null,
+      quantity: 1,
+      cost_coins: item.costCoins
+    };
+    fetch('http://127.0.0.1:8000/api/purchases/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(purchase)
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(JSON.stringify(data));
+        setCoinBalance((b) => b - item.costCoins);
+        setInventory((inv) => [...inv, {
+          id: data.transaction_id || data.id,
+          name: data.product_name,
+          game: data.game,
+          type: data.type,
+          price: data.price,
+          coins: data.coins,
+          status: data.status,
+          date: data.created_at
+        }]);
+        setModalContent({ title: 'Purchase Complete', body: `Added "${item.name}" to your inventory.` });
+        setShowModal(true);
+      })
+      .catch(err => {
+        setModalContent({ title: 'Error', body: 'Failed to complete purchase.' });
+        setShowModal(true);
+      });
+  };
 
   return (
     <Container>

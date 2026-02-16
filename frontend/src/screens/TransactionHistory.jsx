@@ -17,6 +17,47 @@ function TransactionHistory() {
     return () => window.removeEventListener('storage', handler)
   }, [])
 
+  // If user is authenticated, fetch transactions from backend and merge with local state
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    if (!token) return
+
+    fetch('http://127.0.0.1:8000/api/purchases/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(async res => {
+        const data = await res.json()
+        if (!res.ok) throw new Error(JSON.stringify(data))
+
+        // Map backend purchase structure to frontend transaction shape, including game
+        const mapped = data.map(p => ({
+          id: p.transaction_id || p.id,
+          name: p.product_name,
+          quantity: p.quantity,
+          price: p.price,
+          status: p.status,
+          date: p.created_at,
+          game: p.game || ''
+        }))
+        
+        // Merge backend purchases with local inventory, avoiding duplicates
+        const existing = JSON.parse(localStorage.getItem('inventory') || '[]')
+        const backendIds = new Set(mapped.map(p => p.id))
+        const merged = [...mapped, ...existing.filter(p => !backendIds.has(p.id))]
+        
+        setTransactions(merged)
+        // keep localStorage in sync for other components that read it
+        localStorage.setItem('inventory', JSON.stringify(merged))
+      })
+      .catch(err => {
+        console.warn('Failed to fetch purchases from API', err)
+        // Fall back to local storage if fetch fails
+      })
+  }, [])
+
   const statuses = useMemo(() => {
     const s = new Set(transactions.map(t => (t.status || 'Completed')))
     return ['all', ...Array.from(s)]
@@ -96,7 +137,7 @@ function TransactionHistory() {
               <tr key={(t.id||Math.random()) + (t.date||'')}>
                 <td style={{minWidth:120}}>{t.id || '—'}</td>
                 <td>{t.name || (t.coins ? `${t.coins.toLocaleString()} coins` : 'Item')}</td>
-                <td>{t.game || 'General'}</td>
+                <td>{t.game ? t.game : 'General'}</td>
                 <td>{t.type ? t.type.charAt(0).toUpperCase() + t.type.slice(1) : 'Coin'}</td>
                 <td>{t.quantity || t.coins || 1}</td>
                 <td>{t.price != null ? `$${Number(t.price).toFixed(2)}` : '—'}</td>

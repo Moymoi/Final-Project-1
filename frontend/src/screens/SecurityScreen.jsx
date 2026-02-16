@@ -89,7 +89,6 @@ const SecurityScreen = () => {
     setDisableError(null);
     try {
       const token = localStorage.getItem('authToken');
-      console.log('Starting disable 2FA with OTP:', disableOtp);
       
       const response = await axios.post(
         'http://localhost:8000/api/2fa/disable/',
@@ -102,7 +101,6 @@ const SecurityScreen = () => {
         }
       );
       
-      console.log('Disable response success:', response.data);
       setTwoFaEnabled(false);
       setShowDisableConfirm(false);
       setDisableOtp('');

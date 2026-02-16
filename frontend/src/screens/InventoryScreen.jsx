@@ -40,6 +40,44 @@ function InventoryScreen() {
     return () => window.removeEventListener('storage', onStorage)
   }, [])
 
+  // Fetch purchases from backend after login, merge with localStorage, and update inventory state
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    fetch('http://127.0.0.1:8000/api/purchases/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(JSON.stringify(data));
+        // Map backend purchase structure to frontend inventory shape
+        const mapped = data.map(p => ({
+          id: p.transaction_id || p.id,
+          name: p.product_name,
+          quantity: p.quantity,
+          price: p.price,
+          status: p.status,
+          date: p.created_at,
+          game: p.game,
+          type: p.type,
+          coins: p.coins
+        }));
+        // Merge backend purchases with local inventory, avoiding duplicates
+        const existing = JSON.parse(localStorage.getItem('inventory') || '[]');
+        const backendIds = new Set(mapped.map(p => p.id));
+        const merged = [...mapped, ...existing.filter(p => !backendIds.has(p.id))];
+        setInventory(merged);
+        localStorage.setItem('inventory', JSON.stringify(merged));
+      })
+      .catch(err => {
+        console.warn('Failed to fetch purchases from API', err);
+        // Fall back to local storage if fetch fails
+      });
+  }, [isAuthenticated]);
+
   // Build list of games available in inventory for filter select
   const games = useMemo(() => {
     const setGames = new Set()
@@ -143,7 +181,7 @@ function InventoryScreen() {
                       <div className="mt-2 small text-muted">Purchased: {it.date ? new Date(it.date).toLocaleString() : '—'}</div>
                       <div className="mt-auto d-flex justify-content-between align-items-center">
                         <div className="small text-muted">Amount: <span className="fw-bold">{quantity.toLocaleString()}</span></div>
-                        <div className="small text-muted">{it.price ? `$${it.price.toFixed(2)}` : ''}</div>
+                        <div className="small text-muted">{it.price ? `$${Number(it.price).toFixed(2)}` : ''}</div>
                       </div>
                     </div>
                   </Card.Body>

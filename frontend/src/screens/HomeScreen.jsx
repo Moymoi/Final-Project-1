@@ -19,8 +19,6 @@ function HomeScreen() {
                 }
             } catch (err) {
                 console.error('Error fetching products:', err)
-                // Don't set error, just use local products as fallback
-                console.log('Using local products as fallback')
             } finally {
                 setLoading(false)
             }

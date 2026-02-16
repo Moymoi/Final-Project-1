@@ -11,6 +11,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, UserProfileSerializer
 from .models import UserProfile
+from .models import Purchase
+from .serializers import PurchaseSerializer
 import pyotp
 import qrcode
 import io
@@ -56,7 +58,9 @@ def login_user(request):
             
             user = authenticate(username=username, password=password)
             if user:
-                profile = user.profile
+                # Ensure user has a profile (create one if missing)
+                profile, created = UserProfile.objects.get_or_create(user=user)
+                
                 # If 2FA is enabled, require OTP verification
                 if profile.two_fa_enabled:
                     return Response({
@@ -147,6 +151,85 @@ def enable_2fa(request):
         'qr_code': f'data:image/png;base64,{img_str}',
         'uri': uri
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_purchase(request):
+    """Create a purchase/transaction for the authenticated user"""
+    data = request.data
+    try:
+        product_name = data.get('product_name') or data.get('name')
+        product_id = data.get('product_id')
+        quantity = int(data.get('quantity', 1))
+        unit = data.get('unit') or data.get('unit_name') or 'unit'
+        price = float(data.get('price') or 0)
+        user_id_input = data.get('user_id_input')
+        payment_method = data.get('payment_method')
+        notes = data.get('notes')
+
+        # generate a unique transaction id
+        import uuid
+        transaction_id = uuid.uuid4().hex
+
+        purchase = Purchase.objects.create(
+            user=request.user,
+            product_name=product_name or 'Unknown Product',
+            product_id=product_id,
+            quantity=quantity,
+            unit=unit,
+            price=price,
+            status=data.get('status', 'completed'),
+            transaction_id=transaction_id,
+            user_id_input=user_id_input,
+            payment_method=payment_method,
+            notes=notes,
+        )
+
+        serializer = PurchaseSerializer(purchase, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_user_purchases(request):
+    purchases = Purchase.objects.filter(user=request.user).order_by('-created_at')
+    serializer = PurchaseSerializer(purchases, many=True, context={'request': request})
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_list_purchases(request):
+    # only superusers may access
+    if not request.user.is_superuser:
+        return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+    purchases = Purchase.objects.all().order_by('-created_at')
+    serializer = PurchaseSerializer(purchases, many=True, context={'request': request})
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_dashboard_stats(request):
+    if not request.user.is_superuser:
+        return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+    from django.db.models import Sum, F, Count, DecimalField, ExpressionWrapper
+    total_orders = Purchase.objects.count()
+    total_revenue = Purchase.objects.filter(status='completed').aggregate(
+        total=Sum(ExpressionWrapper(F('price') * F('quantity'), output_field=DecimalField()))
+    )['total'] or 0
+    by_status = {p['status']: p['count'] for p in Purchase.objects.values('status').annotate(count=Count('id'))}
+    recent = Purchase.objects.order_by('-created_at')[:10]
+    recent_ser = PurchaseSerializer(recent, many=True, context={'request': request})
+    return Response({
+        'total_orders': total_orders,
+        'total_revenue': float(total_revenue),
+        'by_status': by_status,
+        'recent': recent_ser.data,
+    })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
