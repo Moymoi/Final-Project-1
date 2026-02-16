@@ -1,12 +1,41 @@
-import React, { useState, useEffect } from 'react'
-import { Navbar, Nav, NavDropdown, Container, Image, Button, Badge } from 'react-bootstrap'
+import React, { useState, useEffect, useRef } from 'react'
+import { Navbar, Nav, NavDropdown, Container, Image, Button, Badge, Form, FormControl, ListGroup } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
+import products from '../products'
 import axios from 'axios'
 import ContactModal from './ContactModal'
 import HelpCenterModal from './HelpCenterModal'
 import FAQModal from './FAQModal'
 
 function Header() {
+    const [search, setSearch] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const searchRef = useRef();
+    // Search logic: filter products by name (case-insensitive, partial match)
+    useEffect(() => {
+      if (search.trim().length === 0) {
+        setSearchResults([]);
+        setShowDropdown(false);
+        return;
+      }
+      const results = products.filter(p =>
+        p.name.toLowerCase().includes(search.trim().toLowerCase())
+      );
+      setSearchResults(results);
+      setShowDropdown(results.length > 0);
+    }, [search]);
+
+    // Hide dropdown when clicking outside
+    useEffect(() => {
+      function handleClickOutside(event) {
+        if (searchRef.current && !searchRef.current.contains(event.target)) {
+          setShowDropdown(false);
+        }
+      }
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
   const [user, setUser] = useState(null)
   const [showContact, setShowContact] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
@@ -78,6 +107,37 @@ function Header() {
           />
           <span>TheLootStop</span>
         </Navbar.Brand>
+        {/* SEARCH BAR, LLM TO BE IMPLEMENTED */}
+        <div ref={searchRef} style={{ minWidth: 220, marginRight: 16, position: 'relative' }}>
+          <Form className="d-flex" onSubmit={e => e.preventDefault()} autoComplete="off">
+            <FormControl
+              type="search"
+              placeholder="Search products..."
+              className="me-2"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              onFocus={() => setShowDropdown(searchResults.length > 0)}
+              style={{ minWidth: 180 }}
+            />
+          </Form>
+          {showDropdown && (
+            <ListGroup style={{ position: 'absolute', zIndex: 1000, width: '100%', maxHeight: 250, overflowY: 'auto' }}>
+              {searchResults.map(product => (
+                <ListGroup.Item
+                  key={product._id}
+                  action
+                  onClick={() => {
+                    setSearch('');
+                    setShowDropdown(false);
+                    navigate(`/product/${product._id}`);
+                  }}
+                >
+                  <span style={{ fontWeight: 500 }}>{product.name}</span>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
+        </div>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">

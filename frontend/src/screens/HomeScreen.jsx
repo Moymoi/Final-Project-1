@@ -49,6 +49,10 @@ function HomeScreen() {
                 )}
             </Row>
         )}
+    
+                {/* RECOMMENDATIONS SECTION, AI PART TO BE IMPLEMENTED */}
+            <h3 className='py-3 text-center'><i className='fas fa-thumbs-up'></i> Recommendations For You <i className='fas fa-thumbs-up'></i></h3>
+            <div className="text-center py-4 text-muted">AI part to be implemented</div>
     </div>
   )
 }
