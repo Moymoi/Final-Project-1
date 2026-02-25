@@ -46,6 +46,7 @@ const CheckoutModal = ({ show, onHide, product, chosenProduct, userId }) => {
           const mapped = {
             id: data.transaction_id || data.id,
             name: data.product_name,
+            game: data.game || product?.name || '',
             quantity: data.quantity,
             price: data.price,
             status: data.status,

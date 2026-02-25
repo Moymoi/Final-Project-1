@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Container, Row, Col, Card, Badge, Button, Form } from 'react-bootstrap'
+import './InventoryScreen.css'
 
 // Map game keys to public image filenames (place images in public/images)
 const GAME_LOGOS = {
@@ -126,7 +127,7 @@ function InventoryScreen() {
         </div>
       </div>
 
-      <Card className="mb-3 p-3">
+      <Card className="mb-3 p-3 inventory-filter-card">
         <div className="d-flex flex-column flex-md-row gap-2 align-items-start">
           <div className="d-flex gap-2 flex-wrap">
             {TYPE_LABELS.map(t => (
@@ -145,7 +146,7 @@ function InventoryScreen() {
       </Card>
 
       {inventory.length === 0 ? (
-        <Card className="text-center py-5">
+        <Card className="text-center py-5 inventory-empty-card">
           <Card.Body>
             <Card.Title>No purchases yet</Card.Title>
               <Card.Text className="text-muted">When you buy skins or bundles they will appear here. Try visiting the Home page to see whats available.</Card.Text>
@@ -162,7 +163,7 @@ function InventoryScreen() {
             const status = it.status || 'Completed'
             return (
               <Col key={it.id}>
-                <Card className="h-100 shadow-sm">
+                <Card className="h-100 shadow-sm inventory-item-card">
                   <Card.Body className="d-flex gap-3">
                     <div style={{width:72, height:72, flexShrink:0}} className="d-flex align-items-center justify-content-center">
                       <img src={logo} alt={gameKey} style={{maxWidth:'100%', maxHeight:'100%', objectFit:'contain'}} />
@@ -170,18 +171,18 @@ function InventoryScreen() {
                     <div className="flex-grow-1 d-flex flex-column">
                       <div className="d-flex justify-content-between align-items-start">
                         <div>
-                          <div className="fw-bold">{title}</div>
-                          <div className="small text-muted">{gameKey} • {it.type ? it.type.charAt(0).toUpperCase() + it.type.slice(1) : 'Coin'}</div>
+                          <div className="fw-bold inventory-item-title">{title}</div>
+                          <div className="small inventory-item-sub">{gameKey} • {it.type ? it.type.charAt(0).toUpperCase() + it.type.slice(1) : 'Coin'}</div>
                         </div>
                         <div className="text-end">
                           <Badge bg={statusVariant(status)} className="text-capitalize">{status}</Badge>
                         </div>
                       </div>
 
-                      <div className="mt-2 small text-muted">Purchased: {it.date ? new Date(it.date).toLocaleString() : '—'}</div>
+                      <div className="mt-2 small inventory-item-meta">Purchased: {it.date ? new Date(it.date).toLocaleString() : '—'}</div>
                       <div className="mt-auto d-flex justify-content-between align-items-center">
-                        <div className="small text-muted">Amount: <span className="fw-bold">{quantity.toLocaleString()}</span></div>
-                        <div className="small text-muted">{it.price ? `$${Number(it.price).toFixed(2)}` : ''}</div>
+                        <div className="small inventory-item-meta">Amount: <span className="fw-bold">{quantity.toLocaleString()}</span></div>
+                        <div className="small inventory-item-price">{it.price ? `$${Number(it.price).toFixed(2)}` : ''}</div>
                       </div>
                     </div>
                   </Card.Body>

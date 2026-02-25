@@ -1,0 +1,67 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Backend Django",
+			"type": "shell",
+			"command": "C:/Users/Jenny/Downloads/Mimoy-School-Files/DATASTALGO/Finalproject1/Final-Project-1/.venv/Scripts/python.exe",
+			"args": [
+				"backend/manage.py",
+				"runserver"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "Run Backend Django",
+			"type": "shell",
+			"command": "py",
+			"args": [
+				"backend/manage.py",
+				"runserver"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "Run Backend Django py",
+			"type": "shell",
+			"command": "py",
+			"args": [
+				"backend/manage.py",
+				"runserver"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "Run Backend Django py",
+			"type": "shell",
+			"command": "py",
+			"args": [
+				"backend/manage.py",
+				"runserver"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "Run Frontend React",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"frontend",
+				"start"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "Run Frontend React cmd",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"--prefix",
+				"frontend",
+				"start"
+			],
+			"isBackground": true
+		}
+	]
+}

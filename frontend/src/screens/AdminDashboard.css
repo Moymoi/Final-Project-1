@@ -1,0 +1,63 @@
+.admin-stat-card {
+  border: 2px solid #32fbe2 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #7848c7 0%, #6c40bb 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 0 14px rgba(50, 251, 226, 0.35) !important;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  text-shadow: none !important;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(50, 251, 226, 0.48) !important;
+}
+
+.admin-stat-card .card-body {
+  background: transparent !important;
+  padding: 1.25rem;
+}
+
+.admin-stat-title {
+  color: #fff !important;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-shadow: none !important;
+}
+
+.admin-stat-value {
+  color: #fff !important;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0;
+  text-shadow: none !important;
+}
+
+.admin-status-row {
+  margin-bottom: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-status-label {
+  text-transform: capitalize;
+  font-weight: 600;
+  min-width: 100px;
+  color: #fff;
+  text-shadow: none !important;
+}
+
+.admin-status-pill {
+  background-color: #38e97c;
+  color: #fff;
+  padding: 0.35rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 700;
+  min-width: 44px;
+  text-align: center;
+  display: inline-block;
+  text-shadow: none !important;
+}

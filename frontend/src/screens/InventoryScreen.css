@@ -1,0 +1,95 @@
+.inventory-item-card {
+  border: 2px solid #32fbe2 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #7848c7 0%, #6c40bb 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 0 14px rgba(50, 251, 226, 0.35) !important;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.inventory-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(50, 251, 226, 0.48) !important;
+}
+
+.inventory-item-card .card-body {
+  background: transparent !important;
+  padding: 1.05rem;
+}
+
+.inventory-item-title {
+  color: #fff;
+  font-weight: 700;
+  text-shadow: none !important;
+}
+
+.inventory-item-sub,
+.inventory-item-meta {
+  color: #32fbe2 !important;
+  font-weight: 500;
+  text-shadow: none !important;
+}
+
+.inventory-item-price {
+  color: #fff !important;
+  font-weight: 700;
+  text-shadow: none !important;
+}
+
+.inventory-item-card .badge {
+  background-color: #38e97c !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.inventory-filter-card,
+.inventory-empty-card {
+  border: 2px solid #32fbe2 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #7848c7 0%, #6c40bb 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 0 14px rgba(50, 251, 226, 0.35) !important;
+}
+
+.inventory-filter-card .btn-outline-secondary {
+  border-color: #32fbe2 !important;
+  color: #d7f8ff !important;
+  background-color: #4a2793 !important;
+}
+
+.inventory-filter-card .btn-outline-secondary:hover,
+.inventory-filter-card .btn-outline-secondary:focus,
+.inventory-filter-card .btn-outline-secondary:active {
+  background-color: #3d1f7c !important;
+  color: #fff !important;
+}
+
+.inventory-filter-card .btn-outline-secondary:not(:disabled):not(.disabled).active,
+.inventory-filter-card .btn-outline-secondary:not(:disabled):not(.disabled):active,
+.inventory-filter-card .show > .btn-outline-secondary.dropdown-toggle {
+  background-color: #3d1f7c !important;
+  border-color: #32fbe2 !important;
+  color: #fff !important;
+}
+
+.inventory-filter-card .form-select {
+  border: 1px solid rgba(50, 251, 226, 0.45) !important;
+  border-radius: 10px !important;
+  color: #111 !important;
+  background-color: #fff !important;
+}
+
+.inventory-filter-card .form-select:focus {
+  border-color: #32fbe2 !important;
+  box-shadow: 0 0 0 0.15rem rgba(50, 251, 226, 0.2) !important;
+}
+
+.inventory-filter-card .form-select option {
+  color: #111;
+  background-color: #fff;
+}
+
+.inventory-filter-card .text-muted,
+.inventory-empty-card .text-muted {
+  color: #d8e9ff !important;
+}

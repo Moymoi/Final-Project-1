@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Container, Row, Col, Card, Table, Spinner } from 'react-bootstrap'
 import axios from 'axios'
+import './AdminDashboard.css'
 
 function AdminDashboard() {
   const [loading, setLoading] = useState(true)
@@ -53,18 +54,18 @@ function AdminDashboard() {
         <>
           <Row className="g-3 mb-3">
             <Col md={4}>
-              <Card>
+              <Card className="admin-stat-card h-100">
                 <Card.Body>
-                  <Card.Title>Total Orders</Card.Title>
-                  <Card.Text style={{fontSize: '1.5rem'}}>{stats?.total_orders ?? 0}</Card.Text>
+                  <Card.Title className="admin-stat-title">Total Orders</Card.Title>
+                  <Card.Text className="admin-stat-value">{stats?.total_orders ?? 0}</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
             <Col md={4}>
-              <Card>
+              <Card className="admin-stat-card h-100">
                 <Card.Body>
-                  <Card.Title>Total Revenue</Card.Title>
-                  <Card.Text style={{fontSize: '1.5rem'}}>
+                  <Card.Title className="admin-stat-title">Total Revenue</Card.Title>
+                  <Card.Text className="admin-stat-value">
                     ${purchases && purchases.length > 0
                       ? purchases.reduce((sum, p) => {
                           const price = Number(p.price);
@@ -76,9 +77,9 @@ function AdminDashboard() {
               </Card>
             </Col>
             <Col md={4}>
-              <Card>
+              <Card className="admin-stat-card h-100">
                 <Card.Body>
-                  <Card.Title>Order Statuses</Card.Title>
+                  <Card.Title className="admin-stat-title">Order Statuses</Card.Title>
                   <div>
                     {(() => {
                       const merged = {};
@@ -88,9 +89,9 @@ function AdminDashboard() {
                         merged[key] = (merged[key] || 0) + (count || 0);
                       });
                       return Object.entries(merged).map(([status, count]) => (
-                        <div key={status} style={{marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px'}}>
-                          <span style={{textTransform: 'capitalize', fontWeight: 500, minWidth: '100px'}}>{status.charAt(0).toUpperCase() + status.slice(1)}:</span>
-                          <span style={{backgroundColor: '#6c757d', color: '#ffffff', padding: '6px 14px', borderRadius: '4px', fontWeight: 'bold', minWidth: '40px', textAlign: 'center', display: 'inline-block'}}>{count || 0}</span>
+                        <div key={status} className="admin-status-row">
+                          <span className="admin-status-label">{status.charAt(0).toUpperCase() + status.slice(1)}:</span>
+                          <span className="admin-status-pill">{count || 0}</span>
                         </div>
                       ));
                     })()}

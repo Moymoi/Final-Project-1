@@ -92,9 +92,9 @@ function ProfileScreen() {
               <Col xs={3} sm={2} className="text-center">
                 <div className="avatar-clickable" onClick={() => fileInputRef.current?.click()}>
                   {profile.profile_picture ? (
-                    <Image src={profile.profile_picture} rounded style={{ width: 64, height: 64, objectFit: 'cover', cursor: 'pointer' }} />
+                    <Image src={profile.profile_picture} rounded className="profile-avatar-img" />
                   ) : (
-                    <div className="avatar-placeholder" style={{ cursor: 'pointer' }}>
+                    <div className="avatar-placeholder profile-avatar-img">
                       <i className="fas fa-user" />
                     </div>
                   )}
@@ -123,17 +123,20 @@ function ProfileScreen() {
                   }
                 }} />
               </Col>
-              <Col>
-                <h3 className="mb-1">{profile.user?.username || 'User'}</h3>
-                <div className="text-muted">{profile.user?.first_name || ''} {profile.user?.last_name || ''}</div>
-                <div className="text-muted">{profile.user?.email || ''}</div>
-                <div className="mt-2">
-                  <Button variant="danger" size="sm" onClick={handleLogout}>Logout</Button>
-                </div>
+              <Col className="profile-info-col">
+                <h3 className="profile-username">{profile.user?.username || 'User'}</h3>
+                <div className="text-muted profile-email">{profile.user?.email || ''}</div>
+                <div className="text-muted profile-fullname">{profile.user?.first_name || ''} {profile.user?.last_name || ''}</div>
                 {/* Upload now happens by clicking the avatar; status shown via alerts */}
               </Col>
             </Row>
             {profile?.bio && <p className="mt-3 mb-0 text-muted small">{profile.bio}</p>}
+            <div className="profile-actions">
+              <Button variant="light" className="profile-logout-btn" onClick={handleLogout}>
+                <i className="fas fa-sign-out-alt" aria-hidden="true" />
+                <span>Logout</span>
+              </Button>
+            </div>
           </Card>
         </Col>
       </Row>

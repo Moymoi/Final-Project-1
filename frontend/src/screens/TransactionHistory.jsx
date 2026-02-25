@@ -1,15 +1,42 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { Container, Table, Card, Button, Form, Row, Col } from 'react-bootstrap'
+import { Container, Card, Form, Row, Col, Badge } from 'react-bootstrap'
+import './TransactionHistory.css'
 
 function formatDate(dt) {
   if (!dt) return '—'
   try { return new Date(dt).toLocaleString() } catch (e) { return dt }
 }
 
+function formatPeso(amount) {
+  const value = Number(amount)
+  if (Number.isNaN(value)) return '—'
+  return `₱${value.toFixed(value % 1 === 0 ? 0 : 2)}`
+}
+
+function resolveGameTitle(transaction) {
+  const explicitGame = (transaction?.game || '').trim()
+  if (explicitGame && explicitGame.toLowerCase() !== 'general') return explicitGame
+
+  const sourceText = `${transaction?.name || ''} ${transaction?.notes || ''}`.toLowerCase()
+
+  if (sourceText.includes('paimon') || sourceText.includes('primogem') || sourceText.includes('genshin')) return 'Genshin Impact'
+  if (sourceText.includes('trailblazer') || sourceText.includes('oneiric') || sourceText.includes('honkai')) return 'Honkai: Star Rail'
+  if (sourceText.includes('aurora epic skin') || sourceText.includes('diamond pass') || sourceText.includes('twilight pass') || sourceText.includes('ml skin') || sourceText.includes('diamonds')) return 'Mobile Legends: Bang Bang'
+  if (sourceText.includes('wild core') || sourceText.includes('wild rift')) return 'League of Legends'
+  if (sourceText.includes('call of duty') || sourceText.includes('codm') || sourceText.includes('cp') || sourceText.includes('shell')) return 'Call of Duty: Mobile'
+  if (sourceText.includes('roblox') || sourceText.includes('robux')) return 'Roblox'
+  if (sourceText.includes('mobile legends') || sourceText.includes('mlbb')) return 'Mobile Legends: Bang Bang'
+  if (sourceText.includes('free fire')) return 'Free Fire'
+  if (sourceText.includes('valorant')) return 'Valorant'
+  if (sourceText.includes('league of legends') || sourceText.includes('lol')) return 'League of Legends'
+  if (sourceText.includes('pubg')) return 'PUBG Mobile'
+
+  return 'General'
+}
+
 function TransactionHistory() {
   const [transactions, setTransactions] = useState(() => JSON.parse(localStorage.getItem('inventory') || '[]'))
-  const [query, setQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [rangeFilter, setRangeFilter] = useState('all')
 
   useEffect(() => {
     const handler = () => setTransactions(JSON.parse(localStorage.getItem('inventory') || '[]'))
@@ -58,95 +85,113 @@ function TransactionHistory() {
       })
   }, [])
 
-  const statuses = useMemo(() => {
-    const s = new Set(transactions.map(t => (t.status || 'Completed')))
-    return ['all', ...Array.from(s)]
-  }, [transactions])
-
   const filtered = useMemo(() => {
-    return transactions.filter(t => {
-      if (statusFilter !== 'all' && (t.status || 'Completed') !== statusFilter) return false
-      if (!query) return true
-      const q = query.toLowerCase()
-      return (t.name && t.name.toLowerCase().includes(q)) || (t.game && t.game.toLowerCase().includes(q)) || (t.id && String(t.id).toLowerCase().includes(q))
-    }).sort((a,b) => new Date(b.date || 0) - new Date(a.date || 0))
-  }, [transactions, query, statusFilter])
+    const now = new Date()
+    const dayMs = 24 * 60 * 60 * 1000
 
-  const exportCsv = () => {
-    if (!transactions || transactions.length === 0) return
-    const headers = ['transactionId','item','game','type','quantity','price','status','date']
-    const rows = transactions.map(t => ([t.id||'', t.name||'', t.game||'', t.type||'', t.quantity||t.coins||'', t.price!=null?t.price:'', t.status||'Completed', t.date||'']))
-    const csv = [headers.join(','), ...rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(','))].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'transactions.csv'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+    return transactions
+      .filter(t => {
+        if (rangeFilter === 'all') return true
+        if (!t.date) return false
+
+        const txDate = new Date(t.date)
+        if (Number.isNaN(txDate.getTime())) return false
+
+        const diffDays = (now.getTime() - txDate.getTime()) / dayMs
+        if (rangeFilter === '7') return diffDays <= 7
+        if (rangeFilter === '30') return diffDays <= 30
+        if (rangeFilter === '90') return diffDays <= 90
+        return true
+      })
+      .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
+  }, [transactions, rangeFilter])
 
   return (
-    <Container>
-      <div className="d-flex justify-content-between align-items-start py-3">
-        <div>
-          <h2 className="mb-1">Transaction History</h2>
-          <p className="text-muted mb-0">A record of your purchases: amounts, times, dates and status.</p>
-        </div>
-        <div className="d-flex gap-2">
-          <Button variant="outline-secondary" size="sm" onClick={exportCsv}>Export CSV</Button>
+    <Container className="transaction-history-wrap">
+      <h2 className="transaction-history-title mb-3">Transaction history</h2>
+
+      <div className="transaction-filter-card mb-3">
+        <div className="transaction-filter-wrap">
+          <Form.Select
+            className="transaction-range-select"
+            value={rangeFilter}
+            onChange={e => setRangeFilter(e.target.value)}
+          >
+            <option value="all">All transactions</option>
+            <option value="7">Past 7 days</option>
+            <option value="30">Past 30 days</option>
+            <option value="90">Past 90 days</option>
+          </Form.Select>
         </div>
       </div>
 
-      <Card className="mb-3 p-3">
-        <Row className="g-2 align-items-center">
-          <Col md={6}>
-            <Form.Control placeholder="Search by item, game or transaction id" value={query} onChange={e=>setQuery(e.target.value)} />
-          </Col>
-          <Col md={3}>
-            <Form.Select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
-              {statuses.map(s => <option key={s} value={s}>{s === 'all' ? 'All statuses' : s}</option>)}
-            </Form.Select>
-          </Col>
-        </Row>
-      </Card>
-
       {filtered.length === 0 ? (
-        <Card className="text-center py-5">
+        <Card className="text-center py-5 transaction-empty-card">
           <Card.Body>
             <Card.Title>No transactions found</Card.Title>
             <Card.Text className="text-muted">Your purchases will appear here. Make a purchase to generate a transaction record.</Card.Text>
           </Card.Body>
         </Card>
       ) : (
-        <Table striped hover responsive className="align-middle">
-          <thead>
-            <tr>
-              <th>Transaction ID</th>
-              <th>Item</th>
-              <th>Game</th>
-              <th>Type</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Date / Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(t => (
-              <tr key={(t.id||Math.random()) + (t.date||'')}>
-                <td style={{minWidth:120}}>{t.id || '—'}</td>
-                <td>{t.name || (t.coins ? `${t.coins.toLocaleString()} coins` : 'Item')}</td>
-                <td>{t.game ? t.game : 'General'}</td>
-                <td>{t.type ? t.type.charAt(0).toUpperCase() + t.type.slice(1) : 'Coin'}</td>
-                <td>{t.quantity || t.coins || 1}</td>
-                <td>{t.price != null ? `$${Number(t.price).toFixed(2)}` : '—'}</td>
-                <td>{t.status || 'Completed'}</td>
-                <td>{formatDate(t.date)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <Row className="g-3 transaction-grid">
+          {filtered.map((t, index) => {
+            const quantity = t.quantity || t.coins || 1
+            const itemPurchased = t.name || (t.coins ? `${t.coins.toLocaleString()} Diamonds` : 'Item')
+            const bonusText = t.bonus ? ` + ${t.bonus} Bonus` : ''
+            const paymentStatus = t.status || 'Fulfilled'
+            const orderId = t.order_id || t.id || '—'
+            const transactionId = t.transaction_id || t.id || '—'
+            const paymentMethod = t.payment_method || 'GCash'
+            const gameTitle = resolveGameTitle(t)
+
+            return (
+              <Col key={`${t.id || index}-${t.date || ''}`} xs={12} md={6} lg={4}>
+                <Card className="transaction-card h-100">
+                  <Card.Body className="pb-2">
+                    <h5 className="transaction-game-title mb-3">{gameTitle}</h5>
+
+                    <div className="transaction-meta-row">
+                      <span className="label">Order date</span>
+                      <span className="value">{formatDate(t.date)}</span>
+                    </div>
+
+                    <div className="transaction-meta-row">
+                      <span className="label">Payment status</span>
+                      <span className="value">
+                        <Badge pill bg="success">{paymentStatus}</Badge>
+                      </span>
+                    </div>
+
+                    <div className="transaction-meta-row">
+                      <span className="label">Order ID</span>
+                      <span className="value">{orderId}</span>
+                    </div>
+
+                    <div className="transaction-meta-row">
+                      <span className="label">Transaction ID</span>
+                      <span className="value">{transactionId}</span>
+                    </div>
+
+                    <div className="transaction-meta-row">
+                      <span className="label">Item purchased</span>
+                      <span className="value">{`${quantity} ${itemPurchased}${bonusText}`}</span>
+                    </div>
+
+                    <div className="transaction-meta-row mb-3">
+                      <span className="label">Payment method</span>
+                      <span className="value">{paymentMethod}</span>
+                    </div>
+
+                    <div className="transaction-total-row">
+                      <span className="label">Total payment</span>
+                      <span className="amount">{formatPeso(t.price ?? 0)}</span>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            )
+          })}
+        </Row>
       )}
     </Container>
   )

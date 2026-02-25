@@ -1,4 +1,12 @@
 {
+  "name": "final-project-1",
+  "private": true,
+  "scripts": {
+    "dev": "start \"backend\" py backend/manage.py runserver && start \"frontend\" cmd /c npm --prefix frontend start",
+    "dev:backend": "py backend/manage.py runserver",
+    "dev:frontend": "npm --prefix frontend start",
+    "install:frontend": "npm --prefix frontend install"
+  },
   "dependencies": {
     "axios": "^1.13.2",
     "virtualenv": "^0.3.1"

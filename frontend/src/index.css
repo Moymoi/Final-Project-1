@@ -24,3 +24,13 @@ h3{
 .product-card .card-img-top{background:transparent}
 .product-card .card-body{background:transparent}
 .product-card .card-title strong{color:inherit}
+
+.header-search-input {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.header-search-input:hover {
+  transform: translateY(-1px) scale(1.01);
+  border-color: #32fbe2 !important;
+  box-shadow: 0 0 0 0.15rem rgba(50, 251, 226, 0.22);
+}

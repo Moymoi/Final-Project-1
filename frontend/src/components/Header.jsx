@@ -113,7 +113,7 @@ function Header() {
             <FormControl
               type="search"
               placeholder="Search products..."
-              className="me-2"
+              className="me-2 header-search-input"
               value={search}
               onChange={e => setSearch(e.target.value)}
               onFocus={() => setShowDropdown(searchResults.length > 0)}

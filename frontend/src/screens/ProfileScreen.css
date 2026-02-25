@@ -1,11 +1,98 @@
 /* Profile page styles */
 .profile-page { }
 
-.profile-card { background:#fff; border-radius:12px }
-.avatar-placeholder { width:56px; height:56px; border-radius:10px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; color:#666; font-size:22px }
+.profile-card {
+  position: relative;
+  border: 2px solid #32fbe2 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #7848c7 0%, #6c40bb 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 0 14px rgba(50, 251, 226, 0.35) !important;
+}
+
+.avatar-placeholder {
+  border-radius: 10px;
+  background: rgba(13, 5, 29, 0.45);
+  border: 1px solid rgba(50, 251, 226, 0.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#d8e9ff;
+  font-size:22px;
+}
+.profile-avatar-img { width:88px; height:88px; object-fit:cover; cursor:pointer }
+
+.profile-info-col {
+  padding-right: 170px;
+}
+
+.profile-username {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: none !important;
+}
+
+.profile-email {
+  margin-top: 0.35rem;
+  color: #32fbe2 !important;
+  text-shadow: none !important;
+}
+
+.profile-fullname {
+  margin-top: 0.2rem;
+  color: #d8e9ff !important;
+  text-shadow: none !important;
+}
+
+.profile-actions {
+  margin-top: 0;
+  display: flex;
+  justify-content: flex-end;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+}
+
+.profile-logout-btn {
+  border-radius: 999px;
+  padding: 0.62rem 1.3rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  border: 0;
+  background: #46ddf2;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  line-height: 1;
+  text-shadow: none !important;
+  box-shadow: 0 0 12px rgba(70, 221, 242, 0.45);
+}
+
+.profile-logout-btn i {
+  font-size: 1rem;
+}
+
+.profile-logout-btn:hover,
+.profile-logout-btn:focus,
+.profile-logout-btn:active {
+  background: #39d3e8 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 0 14px rgba(70, 221, 242, 0.55) !important;
+}
 
 @media (max-width:576px){
-  .avatar-placeholder { width:48px; height:48px }
+  .profile-avatar-img { width:72px; height:72px }
+  .profile-info-col { padding-right: 0; }
+  .profile-actions {
+    position: static;
+    margin-top: 0.75rem;
+    justify-content: flex-start;
+  }
 }
 
 .avatar-clickable { display: inline-block }
